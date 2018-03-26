@@ -1,0 +1,21 @@
+{
+  "name": "metamind-fb-relay",
+  "version": "0.0.1",
+  "description": "Relay server to pass messages from facebook into metamind-api",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Metatavu Oy",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "bootbot": "^1.0.14",
+    "express": "^4.16.3",
+    "metamind-client": "0.0.26",
+    "minimist": "^1.2.0",
+    "nconf": "^0.10.0",
+    "sequelize": "^4.37.4",
+    "striptags": "^3.1.1"
+  }
+}

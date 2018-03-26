@@ -1,0 +1,23 @@
+{
+  "mysql": {
+    "host": "localhost",
+    "database": "metamind-fb",
+    "username": "root",
+    "password": "",
+    "port": "3306"
+  },
+  "fb": {
+    "verify-token": "",
+    "app-secret": ""
+  },
+  "bots": [{
+    "fb-access-token": "",
+    "api-url": "",
+    "page-id": "",
+    "client-id": "",
+    "client-secret": "",
+    "story": "",
+    "locale": "",
+    "timezone": ""
+  }]
+}

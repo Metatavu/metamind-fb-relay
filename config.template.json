@@ -1,23 +1,24 @@
 {
-  "mysql": {
-    "host": "localhost",
-    "database": "metamind-fb",
-    "username": "root",
-    "password": "",
-    "port": "3306"
-  },
   "fb": {
-    "verify-token": "",
-    "app-secret": ""
+    "verify-token": "verify-token",
+    "app-secret": "ap-secret"
   },
   "bots": [{
-    "fb-access-token": "",
-    "api-url": "",
-    "page-id": "",
-    "client-id": "",
-    "client-secret": "",
-    "story": "",
-    "locale": "",
-    "timezone": ""
+    "max-idle-session": 14400,
+    "get-started-payload": "Fb get started payload, see https://developers.facebook.com/docs/messenger-platform/reference/messenger-profile-api/get-started-button",
+    "fb-access-token": "page-access-token",
+    "api-url": "https://api.metamind.fi/v1",
+    "page-id": "page-id",
+    "client-id": "metamind-client-id",
+    "client-secret": "metamind-client-secret",
+    "story": "metamind-story",
+    "locale": "fi",
+    "timezone": "Europe/Helsinki",
+    "greetings": [
+        {"comment": "Fb greeting settings, see https://developers.facebook.com/docs/messenger-platform/reference/messenger-profile-api/greeting"}
+    ],
+    "persistent-menu": [
+        {"comment": "Fb persistent mene settings, see https://developers.facebook.com/docs/messenger-platform/reference/messenger-profile-api/persistent-menu"}
+    ]
   }]
 }

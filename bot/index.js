@@ -11,12 +11,14 @@
 
   class Bot {
 
-    constructor(botConfig, database) {
+    constructor(botConfig, redisClient) {
+      this.redisClient = redisClient;
       this.story = botConfig.story;
       this.fbPageId = botConfig['page-id'];
       this.locale = botConfig.locale;
       this.timezone = botConfig.timezone;
-      this.database = database;
+      this.getStartedPostBackPayload = botConfig['get-started-payload'];
+      this.maxSessionIdle = botConfig['max-idle-session'];
       this.apiClient = this.buildMetamindApiClient(botConfig['api-url'], botConfig['client-id'], botConfig['client-secret']);
       this.sessionsApi = new MetamindClient.SessionsApi(this.apiClient);
       this.messagesApi = new MetamindClient.MessagesApi(this.apiClient);
@@ -25,7 +27,9 @@
         verifyToken: config.get('fb:verify-token'),
         appSecret: config.get('fb:app-secret')
       });
+
       this.bootBot.on('message', this.onFacebookMessage.bind(this));
+      this.bootBot.on('postback', this.onFacebookPostback.bind(this));
     }
     
     get pageId() {
@@ -51,17 +55,20 @@
     
     processMetamindText(reply) {
       const messages = reply.response.split(/<br\s*\/?>/i);
-      const result = [];
+      const texts = [];
+
       messages.forEach((message) => {
-        const cleanedMessage = striptags(message);
+        const cleanedMessage = striptags(message).trim();
         if (cleanedMessage && cleanedMessage.length > 0) {
-          result.push({text: cleanedMessage});
+          texts.push(cleanedMessage);
         }
       });
       
-      if (reply && result.length > 0 && reply.quickResponses.length > 0) {
-        result[result.length - 1].quickResponses = reply.quickResponses;
+      const result = {text: texts.join('\n')};
+      if (reply.quickResponses.length > 0) {
+        result.quickResponses = reply.quickResponses;
       }
+
       return result;
     }
     
@@ -69,12 +76,25 @@
       //TODO: select response based on locale
       return [{text: "Minulla on nyt hiukan teknisiä ongelmia, yritä myöhemmin uudestaan."}];
     }
+
+    async onFacebookPostback(payload, chat) {
+      if (payload.postback && payload.postback.payload) {
+        const postbackPayload = payload.postback.payload;
+        if (postbackPayload === this.getStartedPostBackPayload) {
+          const userId = payload.sender.id;
+          await this.processFacebookEvent(userId, 'INIT', chat);
+        }
+      }
+    }
     
     async onFacebookMessage(payload, chat) {
       const text = payload.message.text;
       const userId = payload.sender.id;
+      await this.processFacebookEvent(userId, text, chat);
+    }
+    
+    async processFacebookEvent(userId, text, chat) {
       chat.sendAction('mark_seen');
-      chat.sendAction('typing_on');
 
       let messages = [];
       try {
@@ -84,10 +104,8 @@
         console.error('Error getting response from Metamind', err);
         messages = this.getErrorResponse();
       }
-      chat.sendAction('typing_off');
-      messages.forEach(async (message) => {
-        await this.sendFbMessage(chat, message);
-      });
+      
+      await this.sendFbMessage(chat, messages);
     }
     
     sendFbMessage(chat, message) {
@@ -97,29 +115,31 @@
           quickReplies: message.quickResponses
         });
       } else {
-        return chat.say(message.text); 
+        return chat.say(message.text, { typing: true }); 
       }
     }
     
     async sendMetamindMessage(userId, text) {
-      const botSession = await this.database.findBotSessionByUserId(userId);
+      const botSession = text === 'INIT' ? null : await this.redisClient.getAsync(userId);
       let sessionId = null;
+      let createdSession = false;
       if (!botSession) {
         sessionId = await this.createMetamindSessionId(userId);
-        await this.database.createBotSession(userId, sessionId);
+        createdSession = true;
       } else {
-        sessionId = botSession.sessionId;
+        sessionId = botSession;
       }
-  
+      
+      this.redisClient.set(userId, sessionId, 'EX', this.maxSessionIdle);
       const message = MetamindClient.Message.constructFromObject({
         sessionId: sessionId,
-        content: text
+        content: createdSession ? 'INIT' : text
       });
 
       return this.messagesApi.createMessage(message);
     }
     
-    createMetamindSessionId(userId) {
+    async createMetamindSessionId(userId) {
       const payload = MetamindClient.Session.constructFromObject({
         story: this.story,
         locale: this.locale,

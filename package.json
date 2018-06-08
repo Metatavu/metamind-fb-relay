@@ -9,13 +9,15 @@
   "author": "Metatavu Oy",
   "license": "AGPL-3.0",
   "dependencies": {
+    "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "bootbot": "^1.0.14",
     "express": "^4.16.3",
     "metamind-client": "0.0.26",
     "minimist": "^1.2.0",
     "nconf": "^0.10.0",
-    "sequelize": "^4.37.4",
+    "redis": "^2.8.0",
+    "request": "^2.87.0",
     "striptags": "^3.1.1"
   }
 }

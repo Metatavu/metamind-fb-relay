@@ -55,12 +55,17 @@
         return;
       }
 
-      for (let j = 0; j < data.entry.length; j++) {
-        for(let i = 0; i < this.bots.length; i++) {
-          if (this.bots[i].pageId === data.entry[j].id) {
-            this.bots[i].handleData({entry: [data.entry[j]]});
-            break;
-          }
+      for (let i = 0; i < data.entry.length; i++) {
+        const dataEntry = data.entry[i];
+        const entryId = dataEntry.id;
+        const targetBot = this.bots.filter((bot) => {
+          return bot.pageId === entryId;
+        })[0];
+
+        if (targetBot) {
+          targetBot.handleData({entry: [dataEntry]});
+        } else {
+          console.error("Could not find bot configuration for pageId: ", entryId);
         }
       }
 

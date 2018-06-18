@@ -59,12 +59,13 @@
         for(let i = 0; i < this.bots.length; i++) {
           if (this.bots[i].pageId === data.entry[j].id) {
             this.bots[i].handleData({entry: [data.entry[j]]});
-            break;
+            res.status(200).send();
+            return;
           }
         }
       }
 
-      res.status(200).send();
+      res.status(404).send();
     }
 
     handleSystemPing(req, res) {

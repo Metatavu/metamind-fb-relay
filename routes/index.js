@@ -20,6 +20,7 @@
     registerRoutes() {
       this.app.get('/webhook', this.initializeWebhook.bind(this));
       this.app.post('/webhook', this.handleWebhook.bind(this));
+      this.app.get('/system/ping', this.handleSystemPing.bind(this));
     }
     
     verifyRequestSignature(req, res, buf) {
@@ -28,7 +29,6 @@
         throw new Error('Missing signature header');
       } else {
         const elements = signature.split('=');
-        const method = elements[0];
         const signatureHash = elements[1];
         const expectedHash = crypto.createHmac('sha1', config.get('fb:app-secret'))
           .update(buf)
@@ -55,7 +55,6 @@
         return;
       }
 
-      const pageId = data.entry.id;
       for (let j = 0; j < data.entry.length; j++) {
         for(let i = 0; i < this.bots.length; i++) {
           if (this.bots[i].pageId === data.entry[j].id) {
@@ -66,6 +65,10 @@
       }
 
       res.status(200).send();
+    }
+
+    handleSystemPing(req, res) {
+      res.send("PONG");
     }
   }
   

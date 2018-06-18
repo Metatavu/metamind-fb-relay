@@ -63,7 +63,7 @@
         })[0];
 
         if (targetBot) {
-          targetBot.handleData({entry: dataEntry});
+          targetBot.handleData({entry: [dataEntry]});
         } else {
           console.error("Could not find bot configuration for pageId: ", entryId);
         }

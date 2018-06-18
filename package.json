@@ -1,6 +1,6 @@
 {
   "name": "metamind-fb-relay",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Relay server to pass messages from facebook into metamind-api",
   "main": "app.js",
   "scripts": {

@@ -156,7 +156,7 @@
     async resolveVisitor(userId) {
       try {
         const user = await this.bootBot.getUserProfile(userId);
-        return `${user.first_name} ${user.last_name} (${userId})`;
+        return user.length > 0 ? `${user.first_name} ${user.last_name} (${userId})` : "Unidentified facebook user";
       } catch(err) {
         console.error(`Error getting facebook user profile with userId: ${userId}`, err);
         return `Unidentified facebook user with id ${userId}`;

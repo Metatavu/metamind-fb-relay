@@ -8,6 +8,7 @@
   const BootBot = require('bootbot');
   const config = require('nconf');
   const striptags = require('striptags');
+  const sanitizeHtml = require('sanitize-html');
 
   class Bot {
 
@@ -58,7 +59,18 @@
       const texts = [];
 
       messages.forEach((message) => {
-        const cleanedMessage = striptags(message).trim();
+        const messageWithLinks = sanitizeHtml(message, {
+          transformTags: {
+            'a': function(tagName, attribs) {
+              return {
+                tagName: 'a',
+                text: attribs.href || ''
+              };
+            }
+          }
+        });
+
+        const cleanedMessage = striptags(messageWithLinks).trim();
         if (cleanedMessage && cleanedMessage.length > 0) {
           texts.push(cleanedMessage);
         }

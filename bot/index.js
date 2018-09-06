@@ -7,7 +7,6 @@
   const MetamindClient = require('metamind-client');
   const BootBot = require('bootbot');
   const config = require('nconf');
-  const striptags = require('striptags');
   const sanitizeHtml = require('sanitize-html');
 
   class Bot {
@@ -59,7 +58,9 @@
       const texts = [];
 
       messages.forEach((message) => {
-        const messageWithLinks = sanitizeHtml(message, {
+        const cleanedMessage = sanitizeHtml(message, {
+          allowedTags: [],
+          allowedAttributes: [],
           transformTags: {
             'a': function(tagName, attribs) {
               return {
@@ -69,8 +70,7 @@
             }
           }
         });
-
-        const cleanedMessage = striptags(messageWithLinks).trim();
+        
         if (cleanedMessage && cleanedMessage.length > 0) {
           texts.push(cleanedMessage);
         }
